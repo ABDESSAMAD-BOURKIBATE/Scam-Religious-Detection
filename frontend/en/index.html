@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamGuard AI — Arabic Threat Detection System</title>
+    <meta name="description"
+        content="ScamGuard AI: Advanced multi-mode Arabic text threat detection powered by Linear SVM + BERT NLP">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+            text-align: left
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Outfit', sans-serif
+        }
+
+        .btn-x {
+            margin-left: auto;
+            margin-right: 0
+        }
+
+        .lang-btn {
+            margin-left: 8px;
+            margin-right: 0
+        }
+
+        .file-selected {
+            direction: ltr
+        }
+
+        .threat-item {
+            border-right: none;
+            border-left: 3px solid var(--red)
+        }
+
+        .rec-item {
+            padding: 12px 16px;
+            border-radius: var(--r-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            line-height: 1.7;
+        }
+
+        .rec-item.critical {
+            background: rgba(248, 81, 73, .08);
+            color: var(--red);
+        }
+
+        .rec-item.high {
+            background: rgba(210, 153, 34, .08);
+            color: var(--amber);
+        }
+
+        .rec-item.medium {
+            background: rgba(88, 166, 255, .08);
+            color: var(--blue);
+        }
+
+        .rec-item.low {
+            background: rgba(63, 185, 80, .08);
+            color: var(--green);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="neuralCanvas" class="neural-canvas"></canvas>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" onclick="showPage('home')"><img src="../assets/logo.png" alt="ScamGuard Logo"
+                    class="nav-logo-img"><span>ScamGuard <small>AI</small></span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="#" class="nav-link active" data-page="home" onclick="showPage('home')"><i
+                        class="ri-microscope-line"></i> Analysis Lab</a>
+                <a href="#" class="nav-link" data-page="stats" onclick="showPage('stats')"><i
+                        class="ri-pie-chart-2-line"></i> Statistics</a>
+                <a href="#" class="nav-link" data-page="examples" onclick="showPage('examples')"><i
+                        class="ri-list-check-3"></i> Examples</a>
+                <a href="#" class="nav-link" data-page="guide" onclick="showPage('guide')"><i
+                        class="ri-book-open-line"></i> Guide</a>
+                <a href="#" class="nav-link" data-page="about" onclick="showPage('about')"><i
+                        class="ri-information-2-line"></i> About</a>
+                <a href="/" class="nav-link lang-btn"><i class="ri-translate-2"></i> عربي</a>
+            </div>
+            <button class="nav-toggle" onclick="toggleMobileMenu()"><i class="ri-menu-3-line"
+                    id="menuIcon"></i></button>
+        </div>
+    </nav>
+
+    <main class="page active" id="page-home">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge"><i class="ri-cpu-line"></i> Powered by Linear SVM + BERT NLP</div>
+                <h1 class="hero-title">ScamGuard <span class="gradient-text">AI</span></h1>
+                <p class="hero-academic">Intelligent Multi-Mode Arabic Threat Detection System</p>
+                <p class="hero-subtitle">Advanced AI system for Arabic text analysis with 4 specialized modes, 6 threat
+                    categories, and BERT emotion intelligence</p>
+                <div class="hero-stats">
+                    <div class="hero-stat"><span class="hero-stat-value">99.35<small>%</small></span><span
+                            class="hero-stat-label">Accuracy</span></div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat"><span class="hero-stat-value">209,950</span><span
+                            class="hero-stat-label">Training Data</span></div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat"><span class="hero-stat-value">6</span><span class="hero-stat-label">Threat
+                            Types</span></div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat"><span class="hero-stat-value">4</span><span class="hero-stat-label">Analysis
+                            Modes</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <div class="mode-grid">
+                <div class="mode-card active" data-mode="general" onclick="selectMode('general', this)"><i
+                        class="ri-shield-check-line"></i>
+                    <h4>General</h4><small>All 6 threat types</small>
+                </div>
+                <div class="mode-card" data-mode="children" onclick="selectMode('children', this)"><i
+                        class="ri-parent-line"></i>
+                    <h4>Children</h4><small>Grooming + Bullying</small>
+                </div>
+                <div class="mode-card" data-mode="intelligence" onclick="selectMode('intelligence', this)"><i
+                        class="ri-spy-line"></i>
+                    <h4>Intelligence</h4><small>BERT + Full Matrix</small>
+                </div>
+                <div class="mode-card" data-mode="parents" onclick="selectMode('parents', this)"><i
+                        class="ri-group-2-line"></i>
+                    <h4>Parents</h4><small>Color-coded alerts</small>
+                </div>
+            </div>
+
+            <div class="analysis-grid">
+                <div class="panel-main">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('text', this)"><i class="ri-keyboard-line"></i>
+                            Text</button>
+                        <button class="tab" onclick="switchTab('file', this)"><i class="ri-file-upload-line"></i> Upload
+                            File</button>
+                        <button class="tab" onclick="switchTab('url', this)"><i class="ri-global-line"></i> URL</button>
+                    </div>
+                    <div class="tab-content active" id="content-text">
+                        <label class="input-label"><i class="ri-quill-pen-line"></i> Enter text to analyze</label>
+                        <textarea id="postText" class="text-input" rows="6"
+                            placeholder="Paste the Arabic text, tweet, or message to scan for threats..."></textarea>
+                        <div class="input-footer">
+                            <span class="char-count" id="charCount">0 chars</span>
+                            <button class="btn btn-primary" onclick="analyzeText()"><i class="ri-search-eye-line"></i>
+                                Analyze</button>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="content-file">
+                        <div class="drop-zone" id="dropZone">
+                            <div class="drop-zone-icon"><i class="ri-upload-cloud-2-line"></i></div>
+                            <p class="drop-zone-text">Drag & drop file here</p>
+                            <p class="drop-zone-hint">or click to browse</p>
+                            <div class="drop-zone-formats"><span>PDF</span><span>DOCX</span><span>TXT</span></div>
+                            <input type="file" id="fileInput" hidden accept=".pdf,.docx,.txt">
+                        </div>
+                        <div class="file-selected hidden" id="fileSelected"><i class="ri-file-check-line"></i><span
+                                id="fileName"></span><button onclick="clearFile()" class="btn-x"><i
+                                    class="ri-close-line"></i></button></div>
+                        <div class="input-footer"><span></span><button class="btn btn-purple disabled"
+                                onclick="analyzeFile()" id="fileAnalyzeBtn" disabled><i
+                                    class="ri-shield-check-line"></i> Scan File</button></div>
+                    </div>
+                    <div class="tab-content" id="content-url">
+                        <label class="input-label"><i class="ri-link"></i> Enter URL to scan</label>
+                        <div class="url-row"><input type="url" id="urlInput" class="text-input"
+                                placeholder="https://example.com/suspicious-post" style="flex:1"><button
+                                class="btn btn-emerald" onclick="analyzeUrl()"><i class="ri-scan-2-line"></i>
+                                Scan</button></div>
+                    </div>
+                </div>
+                <div class="panel-side">
+                    <div class="glass-card">
+                        <div class="card-header"><i class="ri-cpu-line"></i>
+                            <h3>Model Info</h3>
+                        </div>
+                        <div class="model-stats">
+                            <div class="stat-row"><span>Algorithm</span><span class="val-blue">Linear SVM</span></div>
+                            <div class="stat-row"><span>Training Data</span><span class="val-green">209,950</span></div>
+                            <div class="stat-row"><span>Accuracy</span><span class="val-glow">99.35%</span></div>
+                            <div class="stat-row"><span>BERT Model</span><span class="val-purple">CAMeL-Lab</span></div>
+                            <div class="stat-row"><span>Threat Types</span><span class="val-blue">6 categories</span>
+                            </div>
+                            <div class="stat-row"><span>Modes</span><span class="val-green">4 modes</span></div>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="card-header"><i class="ri-bar-chart-grouped-line"></i>
+                            <h3>Detection Weights</h3>
+                        </div>
+                        <div class="chart-sm"><canvas id="featureChart"></canvas></div>
+                    </div>
+                    <div class="glass-card counter-card"><i class="ri-flashlight-line"></i>
+                        <div><span class="counter-val" id="analysisCount">0</span><span class="counter-lbl">Analyses
+                                Performed</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="loading-overlay hidden" id="loadingOverlay">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <h3>Running Security Scan...</h3>
+                <p>SVM + BERT (CAMeL-Lab) + Threat Patterns</p>
+            </div>
+        </div>
+
+        <section class="container">
+            <div class="results-panel hidden" id="resultsPanel">
+                <div class="results-top">
+                    <h2><i class="ri-file-shield-2-line"></i> Security Analysis Report</h2>
+                    <div class="results-top-actions"><span class="timestamp" id="timestamp"></span><button
+                            class="btn btn-sm btn-outline" onclick="downloadReport()"><i class="ri-download-2-line"></i>
+                            Download</button></div>
+                </div>
+                <div class="results-grid">
+                    <div class="verdict-card" id="verdictCard">
+                        <div class="verdict-icon" id="verdictIcon"><i class="ri-shield-check-line"></i></div>
+                        <div class="verdict-body"><span class="verdict-lbl">Security Verdict</span>
+                            <h3 class="verdict-result" id="verdictResult">—</h3><span class="verdict-result-en"
+                                id="verdictResultEn"></span>
+                        </div>
+                        <div class="verdict-action" id="verdictAction"></div>
+                    </div>
+                    <div class="risk-card"><span class="risk-lbl">Risk Level</span>
+                        <div class="risk-wrap"><canvas id="riskGauge"></canvas><span class="risk-pct"
+                                id="riskPct">0%</span></div>
+                    </div>
+                </div>
+                <div class="section-block">
+                    <h3><i class="ri-search-eye-line"></i> Detected Keywords</h3>
+                    <div class="keywords-box" id="keywordsBox"><span class="empty-msg">No suspicious keywords
+                            detected</span></div>
+                </div>
+                <div class="section-block">
+                    <h3><i class="ri-list-check-3"></i> Detection Indicators</h3>
+                    <div class="indicators-grid">
+                        <div class="ind-card">
+                            <div class="ind-icon red"><i class="ri-money-dollar-circle-line"></i></div>
+                            <div class="ind-info"><strong>Financial Exploitation</strong></div>
+                            <div class="ind-status" id="featFinancial"><i class="ri-checkbox-blank-circle-line"></i>
+                            </div>
+                        </div>
+                        <div class="ind-card">
+                            <div class="ind-icon amber"><i class="ri-alarm-warning-line"></i></div>
+                            <div class="ind-info"><strong>Urgency Manipulation</strong></div>
+                            <div class="ind-status" id="featUrgency"><i class="ri-checkbox-blank-circle-line"></i></div>
+                        </div>
+                        <div class="ind-card">
+                            <div class="ind-icon blue"><i class="ri-hand-heart-line"></i></div>
+                            <div class="ind-info"><strong>Religious Manipulation</strong></div>
+                            <div class="ind-status" id="featReligious"><i class="ri-checkbox-blank-circle-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-block">
+                    <h3><i class="ri-error-warning-line"></i> Threats Detected</h3>
+                    <div id="threatsBox" class="threats-box"><span class="empty-msg">No threats detected</span></div>
+                </div>
+                <div class="section-block" id="emotionSection">
+                    <h3><i class="ri-brain-line"></i> BERT Emotion Analysis</h3>
+                    <div class="emotion-grid">
+                        <div class="emo-bar-wrap"><span class="emo-label"><i class="ri-circle-fill"
+                                    style="color:var(--red);font-size:.5rem"></i> Fear</span>
+                            <div class="emo-track">
+                                <div class="emo-fill red" id="emoFear" style="width:0%"></div>
+                            </div><span class="emo-val" id="emoFearVal">0%</span>
+                        </div>
+                        <div class="emo-bar-wrap"><span class="emo-label"><i class="ri-circle-fill"
+                                    style="color:var(--green);font-size:.5rem"></i> Hope</span>
+                            <div class="emo-track">
+                                <div class="emo-fill green" id="emoHope" style="width:0%"></div>
+                            </div><span class="emo-val" id="emoHopeVal">0%</span>
+                        </div>
+                        <div class="emo-bar-wrap"><span class="emo-label"><i class="ri-circle-fill"
+                                    style="color:var(--amber);font-size:.5rem"></i> Guilt</span>
+                            <div class="emo-track">
+                                <div class="emo-fill amber" id="emoGuilt" style="width:0%"></div>
+                            </div><span class="emo-val" id="emoGuiltVal">0%</span>
+                        </div>
+                        <div class="emo-bar-wrap"><span class="emo-label"><i class="ri-circle-fill"
+                                    style="color:#ff8c00;font-size:.5rem"></i> Urgency</span>
+                            <div class="emo-track">
+                                <div class="emo-fill orange" id="emoUrgency" style="width:0%"></div>
+                            </div><span class="emo-val" id="emoUrgencyVal">0%</span>
+                        </div>
+                    </div>
+                    <div class="emo-sentiment" id="emoSentiment"></div>
+                </div>
+                <div class="section-block">
+                    <h3><i class="ri-lightbulb-flash-line"></i> Recommendations</h3>
+                    <div id="recsBox" class="recs-box"><span class="empty-msg">No recommendations</span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <main class="page" id="page-stats">
+        <section class="container page-head">
+            <h1 class="page-title"><i class="ri-pie-chart-2-line"></i> Model Analytics Dashboard</h1>
+            <p class="page-desc">Performance stats for the SVM model trained on 209,950 real Arabic text samples with
+                BERT emotion analysis</p>
+        </section>
+        <section class="container">
+            <div class="kpi-grid">
+                <div class="kpi blue">
+                    <div class="kpi-icon"><i class="ri-database-2-line"></i></div>
+                    <div class="kpi-val">209,950</div>
+                    <div class="kpi-lbl">Training Samples</div>
+                </div>
+                <div class="kpi green">
+                    <div class="kpi-icon"><i class="ri-focus-3-line"></i></div>
+                    <div class="kpi-val">99.35%</div>
+                    <div class="kpi-lbl">Model Accuracy</div>
+                </div>
+                <div class="kpi purple">
+                    <div class="kpi-icon"><i class="ri-brain-line"></i></div>
+                    <div class="kpi-val">10,006</div>
+                    <div class="kpi-lbl">Total Features</div>
+                </div>
+                <div class="kpi amber">
+                    <div class="kpi-icon"><i class="ri-stack-line"></i></div>
+                    <div class="kpi-val">6</div>
+                    <div class="kpi-lbl">Threat Types</div>
+                </div>
+            </div>
+            <div class="charts-grid">
+                <div class="glass-card">
+                    <div class="card-header"><i class="ri-pie-chart-line"></i>
+                        <h3>Training Data Distribution</h3>
+                    </div>
+                    <div class="chart-area"><canvas id="dataDistChart"></canvas></div>
+                </div>
+                <div class="glass-card">
+                    <div class="card-header"><i class="ri-bar-chart-horizontal-line"></i>
+                        <h3>Model Accuracy Comparison</h3>
+                    </div>
+                    <div class="chart-area"><canvas id="modelCompChart"></canvas></div>
+                </div>
+                <div class="glass-card">
+                    <div class="card-header"><i class="ri-grid-line"></i>
+                        <h3>Confusion Matrix</h3>
+                    </div>
+                    <div class="chart-area"><canvas id="confusionChart"></canvas></div>
+                </div>
+                <div class="glass-card">
+                    <div class="card-header"><i class="ri-radar-line"></i>
+                        <h3>Precision / Recall / F1-Score</h3>
+                    </div>
+                    <div class="chart-area"><canvas id="metricsChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <main class="page" id="page-examples">
+        <section class="container page-head">
+            <h1 class="page-title"><i class="ri-list-check-3"></i> Classification Examples</h1>
+            <p class="page-desc">Real examples showing how ScamGuard AI classifies Arabic texts into 3 security
+                categories</p>
+        </section>
+        <section class="container">
+            <div class="examples-section">
+                <!-- Legitimate Content -->
+                <h2 class="ex-title safe-clr"><i class="ri-shield-check-line"></i> Authentic Religious Content</h2>
+                <div class="ex-list" style="margin-bottom: 25px;">
+                    <div class="ex-item safe" onclick="testExample(this)">
+                        <p>Allah Almighty says: Verily, with hardship comes ease. It brings great tidings that relief is
+                            near after every distress. We ask God for ease.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item safe" onclick="testExample(this)">
+                        <p>From the guidance of the Prophet ﷺ in dealing with a neighbor is being kind to them and not
+                            harming them. A Muslim is the one from whose tongue and hands Muslims are safe.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item safe" onclick="testExample(this)">
+                        <p>O Allah, we ask You for forgiveness and well-being in this world and the hereafter. O Allah,
+                            conceal our faults, calm our fears, and protect us.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- Emotional Manipulation / Suspicious -->
+                <h2 class="ex-title warn-clr"><i class="ri-alarm-warning-line"></i> Religious Exploitation &
+                    Manipulation</h2>
+                <div class="ex-list" style="margin-bottom: 25px;">
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>I swear by Almighty God that I saw the Prophet in a dream and he told me whoever publishes
+                            this message will be blessed from where they do not expect, and whoever ignores it will
+                            suffer a great misfortune within 24 hours!</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>Publish this prayer to enter heaven, and if you delete it, know that Satan is the one who
+                            prevented you from asking forgiveness and spreading goodness.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>A trust on your neck until the Day of Judgment, send this verse to 15 people to hear news
+                            that will make you happy tonight, otherwise you will be cursed!</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- Grooming & Cyberbullying (Children Mode focus) -->
+                <h2 class="ex-title warn-clr" style="color:var(--purple)"><i class="ri-parent-line"></i> Grooming &
+                    Cyberbullying</h2>
+                <div class="ex-list" style="margin-bottom: 25px;">
+                    <div class="ex-item warning"
+                        style="border-left-color:var(--purple);background:rgba(188,140,255,0.05)"
+                        onclick="testExample(this)">
+                        <p>You are always a failure and ugly and nobody likes you. I wish you would disappear from this
+                            life completely, you idiot.</p>
+                        <button class="ex-btn" style="color:var(--purple);background:rgba(188,140,255,0.1)">Test <i
+                                class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item warning"
+                        style="border-left-color:var(--purple);background:rgba(188,140,255,0.05)"
+                        onclick="testExample(this)">
+                        <p>Welcome my little girl.. How about we become close friends? Send me your picture and I will
+                            send you a beautiful gift to your address, but this must remain our little secret and never
+                            tell your family.</p>
+                        <button class="ex-btn" style="color:var(--purple);background:rgba(188,140,255,0.1)">Test <i
+                                class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>If you do not send the pictures I asked for right now, I will publish all our conversations
+                            to your classmates and I will scandalize you. Do not ignore me!</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- Intelligence & Extremism (Intelligence Mode) -->
+                <h2 class="ex-title warn-clr" style="color:var(--amber)"><i class="ri-radar-line"></i> Extremism &
+                    Terrorism Signals</h2>
+                <div class="ex-list" style="margin-bottom: 25px;">
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>Come to Jihad for the sake of God to deter the tyrants. We must mobilize generally, prepare
+                            equipment and weapons to support our oppressed brothers with blood and souls, and blow up
+                            the fortresses of the polytheists.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item warning" onclick="testExample(this)">
+                        <p>Declaring these rulers as infidels is a legitimate duty, and martyrdom in the heart of their
+                            military facilities is the only way to raise the banner of monotheism and overthrow regimes
+                            loyal to the West.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- Explicit Fraud & Scams -->
+                <h2 class="ex-title danger-clr"><i class="ri-skull-2-line"></i> Explicit Financial Fraud</h2>
+                <div class="ex-list">
+                    <div class="ex-item danger" onclick="testExample(this)">
+                        <p>Very urgent! An orphaned and sick widow has lost her livelihood and needs a quick surgical
+                            operation to save her life. Donate for the sake of God and save her soul to account number:
+                            SA12345678901234567890</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item danger" onclick="testExample(this)">
+                        <p>A golden investment opportunity from an approved Islamic platform, imaginary profits and 100%
+                            halal in a very short time.. Send your data now and your bank card to WhatsApp number
+                            0555555555</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                    <div class="ex-item danger" onclick="testExample(this)">
+                        <p>Urgent mosque construction in Africa! A little remains to complete the construction and
+                            secure a water well. Make it a continuous charity for you and your parents. Direct transfer
+                            via Western Union or STC Pay to: Mohammed Ibrahim.</p>
+                        <button class="ex-btn">Test <i class="ri-flask-line"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <main class="page" id="page-guide">
+        <section class="container page-head">
+            <h1 class="page-title"><i class="ri-book-open-line"></i> User Guide</h1>
+            <p class="page-desc">Step-by-step guide to using ScamGuard AI</p>
+        </section>
+        <section class="container">
+            <div class="guide-steps">
+                <div class="g-step">
+                    <div class="g-num">1</div>
+                    <div class="g-body">
+                        <h3>Choose Analysis Mode</h3>
+                        <p>General (all 6 threats) • Children (grooming + bullying) • Intelligence (BERT + full matrix)
+                            • Parents (color alerts)</p>
+                    </div>
+                </div>
+                <div class="g-step">
+                    <div class="g-num">2</div>
+                    <div class="g-body">
+                        <h3>Input Text, File, or URL</h3>
+                        <p>Paste text directly • Upload PDF/DOCX/TXT • Enter a web URL — text is cleaned automatically
+                        </p>
+                    </div>
+                </div>
+                <div class="g-step">
+                    <div class="g-num">3</div>
+                    <div class="g-body">
+                        <h3>Run Analysis</h3>
+                        <p>Linear SVM (99.35%) for classification + BERT CAMeL-Lab for emotion analysis + 140+ threat
+                            patterns</p>
+                    </div>
+                </div>
+                <div class="g-step">
+                    <div class="g-num">4</div>
+                    <div class="g-body">
+                        <h3>Review Report</h3>
+                        <p>Verdict • Risk % • Keywords • Threats • Emotion bars • Recommendations</p>
+                    </div>
+                </div>
+                <div class="g-step">
+                    <div class="g-num">5</div>
+                    <div class="g-body">
+                        <h3>Download Report</h3>
+                        <p>Export printable HTML report with all analysis details</p>
+                    </div>
+                </div>
+            </div>
+            <h2 class="sec-title">Security Levels</h2>
+            <div class="class-cards">
+                <div class="class-card safe">
+                    <div class="cc-icon"><i class="ri-shield-check-line"></i></div>
+                    <h3>Legitimate</h3>
+                    <p>Authentic religious content like hadiths, fatwas, and prayers</p>
+                </div>
+                <div class="class-card warning">
+                    <div class="cc-icon"><i class="ri-alarm-warning-line"></i></div>
+                    <h3>Suspicious</h3>
+                    <p>Emotional manipulation without direct financial request</p>
+                </div>
+                <div class="class-card danger">
+                    <div class="cc-icon"><i class="ri-skull-2-line"></i></div>
+                    <h3>Scam</h3>
+                    <p>Direct money request with religious + emotional manipulation</p>
+                </div>
+            </div>
+            <h2 class="sec-title">Supported Threat Categories (6)</h2>
+            <div class="class-cards" style="grid-template-columns:repeat(3,1fr)">
+                <div class="class-card danger">
+                    <div class="cc-icon"><i class="ri-hand-coin-line"></i></div>
+                    <h3>Religious Scam</h3>
+                    <p>Exploiting religion for financial fraud</p>
+                </div>
+                <div class="class-card danger">
+                    <div class="cc-icon"><i class="ri-user-forbid-line"></i></div>
+                    <h3>Sexual Exploitation</h3>
+                    <p>Soliciting private images or grooming</p>
+                </div>
+                <div class="class-card warning">
+                    <div class="cc-icon"><i class="ri-spy-line"></i></div>
+                    <h3>Grooming</h3>
+                    <p>Building false trust to isolate victims</p>
+                </div>
+                <div class="class-card warning">
+                    <div class="cc-icon"><i class="ri-emotion-sad-line"></i></div>
+                    <h3>Cyberbullying</h3>
+                    <p>Verbal abuse, humiliation, and threats</p>
+                </div>
+                <div class="class-card danger">
+                    <div class="cc-icon"><i class="ri-money-dollar-circle-line"></i></div>
+                    <h3>Financial Fraud</h3>
+                    <p>Fake investment offers and data theft</p>
+                </div>
+                <div class="class-card warning">
+                    <div class="cc-icon"><i class="ri-brain-line"></i></div>
+                    <h3>Manipulation</h3>
+                    <p>Psychological pressure and coercive control</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <main class="page" id="page-about">
+        <section class="container page-head">
+            <h1 class="page-title"><i class="ri-information-2-line"></i> System Documentation</h1>
+            <p class="page-desc">Technical details and methodologies behind ScamGuard AI</p>
+        </section>
+        <section class="container">
+            <div class="glass-card" style="margin-bottom:24px;text-align:center;padding:30px">
+                <i class="ri-code-s-slash-line"
+                    style="font-size:2.5rem;color:var(--blue);display:block;margin-bottom:12px"></i>
+                <h2 style="font-size:1.3rem;margin-bottom:4px">Eng. Abdessamad Bourkibate</h2>
+                <p style="color:var(--txt2);font-size:.85rem;margin-bottom:12px">Developer & Researcher</p>
+                <p style="color:var(--txt3);font-size:.82rem;line-height:1.9;max-width:700px;margin:0 auto">Academic
+                    research project developing a multi-mode AI system for Arabic text threat detection. Combines
+                    machine learning (Linear SVM) with advanced language models (BERT - CAMeL-Lab) for 99.35% accuracy
+                    content analysis.</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-flow-chart"></i></div>
+                    <h3>Processing Pipeline</h3>
+                    <p>1. Arabic text cleaning<br>2. TF-IDF extraction (10K features)<br>3. 6 custom semantic
+                        features<br>4. Feature vector merging<br>5. SVM + BERT classification</p>
+                </div>
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-translate-2"></i></div>
+                    <h3>Arabic NLP</h3>
+                    <p>• Alif/Ta/Ya normalization<br>• Diacritics removal<br>• Stopwords filtering<br>• Account number
+                        encoding<br>• Bigram TF-IDF (1,2)</p>
+                </div>
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-brain-line"></i></div>
+                    <h3>Linear SVM Model</h3>
+                    <p>• class_weight = 'balanced'<br>• Accuracy: 99.35%<br>• Precision: 96—100%<br>• Recall:
+                        94—100%<br>• Test set: 41,990 samples</p>
+                </div>
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-cpu-line"></i></div>
+                    <h3>BERT Arabic Model</h3>
+                    <p>• CAMeL-Lab (NYU Abu Dhabi)<br>• bert-base-arabic-camelbert-da<br>• Sentiment
+                        (pos/neg/neutral)<br>• 4 custom emotion metrics<br>• Up to 512 token processing</p>
+                </div>
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-database-2-line"></i></div>
+                    <h3>Training Data</h3>
+                    <p>• 206,849 real tweets (98.5%)<br>• 3,102 synthetic samples (1.5%)<br>• Scraped: 20.7M tweets<br>•
+                        Source: Twitter/Kaggle Arabic<br>• 3 balanced categories</p>
+                </div>
+                <div class="about-card">
+                    <div class="ab-icon"><i class="ri-shield-keyhole-line"></i></div>
+                    <h3>Advanced Detection</h3>
+                    <p>• 140+ threat patterns<br>• 6 threat categories<br>• 4 analysis modes<br>• Printable HTML
+                        reports<br>• Arabic + English UI</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-row">
+            <div class="footer-brand"><img src="../assets/logo.png" alt="Logo" class="nav-logo-img"
+                    style="width:24px;height:24px"> ScamGuard AI</div>
+            <p>Developed by Eng. Abdessamad Bourkibate — Academic Research 2026 ©</p>
+        </div>
+    </footer>
+
+    <script src="../app.js"></script>
+</body>
+
+</html>
