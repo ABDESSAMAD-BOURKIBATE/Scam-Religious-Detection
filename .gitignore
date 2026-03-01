@@ -40,8 +40,11 @@ yarn-error.log*
 *.swo
 
 # Project Specific
-data/
-models/*.pkl
-models/*.h5
-models/*.onnx
+# data/
+# models/*.pkl
+# models/*.h5
+# models/*.onnx
 # If you want to include specific models, comment the above line or add exceptions below.
+!data/processed/
+!models/
+
