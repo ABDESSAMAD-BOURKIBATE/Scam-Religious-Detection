@@ -15,8 +15,10 @@
     --bdr: rgba(255, 255, 255, 0.06);
     --bdr2: rgba(255, 255, 255, 0.12);
     --txt: #f0f6fc;
-    --txt2: #8b949e;
-    --txt3: #484f58;
+    --txt2: #abb4be;
+    /* Lightened from #8b949e */
+    --txt3: #818891;
+    /* Lightened from #484f58 */
     --blue: #58a6ff;
     --green: #3fb950;
     --red: #f85149;
@@ -901,7 +903,7 @@ h4 {
 
 .verdict-result-en {
     font-size: .75rem;
-    color: var(--txt3);
+    color: var(--txt2);
     font-family: 'Inter', sans-serif;
     display: block
 }
@@ -1103,7 +1105,7 @@ h4 {
 }
 
 .ind-info small {
-    color: var(--txt3);
+    color: var(--txt2);
     font-size: .65rem;
     font-family: 'Inter', sans-serif;
     display: block
@@ -1120,7 +1122,7 @@ h4 {
 }
 
 .ind-status.off {
-    color: var(--txt3)
+    color: var(--txt2)
 }
 
 /* Stats Page */
@@ -1220,7 +1222,7 @@ h4 {
 
 .kpi-lbl {
     font-size: .75rem;
-    color: var(--txt3);
+    color: var(--txt2);
     font-family: 'Inter', sans-serif
 }
 
@@ -1288,23 +1290,14 @@ h4 {
 .ex-item p {
     flex: 1;
     font-size: .88rem;
-    color: #9ca3af;
+    color: var(--txt2);
     line-height: 1.7;
     min-width: 0;
     margin: 0;
 }
 
-.ex-item.safe {
-    /* No border */
-}
 
-.ex-item.warning {
-    /* No border */
-}
 
-.ex-item.danger {
-    /* No border */
-}
 
 .ex-btn {
     flex-shrink: 0;
@@ -1429,7 +1422,7 @@ h4 {
 }
 
 .class-card p {
-    color: var(--txt3);
+    color: var(--txt2);
     font-size: .8rem;
     line-height: 1.7
 }
@@ -1526,7 +1519,7 @@ h4 {
 }
 
 .footer p {
-    color: var(--txt3);
+    color: var(--txt2);
     font-size: .75rem;
     font-family: 'Inter', sans-serif
 }
@@ -1718,7 +1711,7 @@ h4 {
 
 .mode-card i {
     font-size: 1.6rem;
-    color: var(--txt3);
+    color: var(--txt2);
     display: block;
     margin-bottom: 8px;
     transition: var(--tr)
@@ -1732,7 +1725,7 @@ h4 {
 
 .mode-card small {
     font-size: .65rem;
-    color: var(--txt3);
+    color: var(--txt2);
     font-family: 'Inter', sans-serif
 }
 
@@ -1792,8 +1785,7 @@ h4 {
     padding: 14px 18px;
     border-radius: var(--r-md);
     background: rgba(0, 0, 0, .18);
-    border: 1px solid var(--bdr);
-    border-right: 3px solid var(--red)
+    border: 1px solid var(--bdr)
 }
 
 .threat-item .ti-icon {
@@ -1823,7 +1815,7 @@ h4 {
 }
 
 .threat-item .ti-body small {
-    color: var(--txt3);
+    color: var(--txt2);
     font-size: .65rem;
     font-family: 'Inter', sans-serif;
     display: block
@@ -1868,8 +1860,8 @@ h4 {
     font-size: .6rem;
     padding: 2px 8px;
     border-radius: 100px;
-    background: rgba(255, 255, 255, .04);
-    color: var(--txt3)
+    background: rgba(255, 255, 255, .08);
+    color: var(--txt2)
 }
 
 /* ===== Emotion Bars ===== */

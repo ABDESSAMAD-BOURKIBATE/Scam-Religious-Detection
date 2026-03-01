@@ -164,19 +164,16 @@ function displayResults(data) {
     if (data.classification.includes("Scam")) {
         vr.classList.add('danger'); vi.classList.add('danger');
         vi.innerHTML = '<i class="ri-skull-2-line"></i>';
-        vc.style.borderRightColor = 'var(--red)';
         va.classList.add('danger');
         va.innerHTML = '<i class="ri-forbid-2-line"></i> حظر فوري والإبلاغ';
     } else if (data.classification.includes("Suspicious")) {
         vr.classList.add('warning'); vi.classList.add('warning');
         vi.innerHTML = '<i class="ri-alarm-warning-line"></i>';
-        vc.style.borderRightColor = 'var(--amber)';
         va.classList.add('warning');
         va.innerHTML = '<i class="ri-flag-line"></i> وضع علامة تحذيرية';
     } else {
         vr.classList.add('safe'); vi.classList.add('safe');
         vi.innerHTML = '<i class="ri-shield-check-line"></i>';
-        vc.style.borderRightColor = 'var(--green)';
         va.classList.add('safe');
         va.innerHTML = '<i class="ri-checkbox-circle-line"></i> محتوى آمن';
     }
@@ -526,9 +523,75 @@ function initNeuralBg() {
     animate();
 }
 
+// ===== HISTORY MANAGEMENT =====
+const MAX_HISTORY = 10;
+function saveToHistory(data) {
+    let history = JSON.parse(localStorage.getItem('scamguard_history') || '[]');
+    const item = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        classification: data.classification,
+        classification_ar: data.classification_ar,
+        risk_score: data.risk_score,
+        text: data.original_text.substring(0, 100) + (data.original_text.length > 100 ? '...' : '')
+    };
+    history.unshift(item);
+    if (history.length > MAX_HISTORY) history.pop();
+    localStorage.setItem('scamguard_history', JSON.stringify(history));
+    renderHistory();
+}
+
+function toggleHistory() {
+    const modal = document.getElementById('historyModal');
+    if (!modal) return;
+    const isHidden = modal.classList.contains('hidden');
+    modal.classList.toggle('hidden');
+    if (isHidden) renderHistory();
+}
+
+function clearHistory() {
+    if (confirm('هل أنت متأكد من مسح سجل الفحوصات؟')) {
+        localStorage.removeItem('scamguard_history');
+        renderHistory();
+        toast("تم مسح السجل بنجاح");
+    }
+}
+
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (!list) return;
+    const history = JSON.parse(localStorage.getItem('scamguard_history') || '[]');
+    list.innerHTML = '';
+
+    if (history.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--txt3)"><i class="ri-history-line" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.3"></i> لا يوجد سجل فحوصات حالياً</div>';
+        return;
+    }
+
+    history.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:15px;border:1px solid var(--bdr);border-radius:12px;margin-bottom:10px;background:rgba(255,255,255,.02);cursor:default';
+        const date = new Date(item.timestamp).toLocaleString('ar-SA', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+
+        let clr = 'var(--green)';
+        if (item.classification.includes('Scam')) clr = 'var(--red)';
+        else if (item.classification.includes('Suspicious')) clr = 'var(--amber)';
+
+        div.innerHTML = `
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                <span style="font-size:.7rem;color:var(--txt3)">${date}</span>
+                <span style="font-size:.75rem;font-weight:bold;color:${clr}">${item.classification_ar} (${Math.round(item.risk_score * 100)}%)</span>
+            </div>
+            <p style="font-size:.8rem;color:var(--txt2);margin:0;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.text}</p>
+        `;
+        list.appendChild(div);
+    });
+}
+
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     initFeatureChart();
     updateRiskGauge(0);
     initNeuralBg();
+    renderHistory();
 });
